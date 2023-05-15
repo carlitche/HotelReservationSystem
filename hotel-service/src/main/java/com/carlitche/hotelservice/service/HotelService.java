@@ -14,30 +14,38 @@ import java.util.Optional;
 @Transactional
 public class HotelService {
 
-    private final HotelRepository hotelRepository;
-    private final RoomTypeRepository roomTypeRepository;
+  private final HotelRepository hotelRepository;
 
-    public HotelService(HotelRepository hotelRepository, RoomTypeRepository roomTypeRepository) {
+  private final RoomTypeRepository roomTypeRepository;
 
-        this.hotelRepository = hotelRepository;
-        this.roomTypeRepository = roomTypeRepository;
+  public HotelService(HotelRepository hotelRepository, RoomTypeRepository roomTypeRepository) {
+
+    this.hotelRepository = hotelRepository;
+    this.roomTypeRepository = roomTypeRepository;
+  }
+
+
+  public Hotel saveHotel(Hotel hotel) {
+
+    for (Room room : hotel.getRooms()) {
+      // Check if the room type already exists
+      Optional<RoomType> existingRoomType = roomTypeRepository.findByType(room.getRoomType()
+                                                                              .getType());
+
+      // If the room type exists, use the existing one
+      if (existingRoomType.isPresent()) {
+        room.setRoomType(existingRoomType.get());
+      } else {
+        throw new RuntimeException("Unknown RoomType");
+      }
     }
 
+    return hotelRepository.save(hotel);
+  }
 
-    public Hotel saveHotel(Hotel hotel) {
+  public Optional<Hotel> getHotelById(Long id) {
 
-        for (Room room : hotel.getRooms()) {
-            // Check if the room type already exists
-            Optional<RoomType> existingRoomType = roomTypeRepository.findByType(room.getRoomType().getType());
+    return hotelRepository.findByHotelId(id);
+  }
 
-            // If the room type exists, use the existing one
-            if (existingRoomType.isPresent()) {
-                room.setRoomType(existingRoomType.get());
-            } else {
-                throw new RuntimeException("Unknown RoomType");
-            }
-        }
-
-        return hotelRepository.save(hotel);
-    }
 }
