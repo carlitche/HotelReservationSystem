@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -17,12 +14,16 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Arrays;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("intgrtest")
+@Sql(scripts = "/insert.sql")
 class HotelServiceIntegrationTest {
 
     @Autowired
@@ -49,7 +50,15 @@ class HotelServiceIntegrationTest {
     }
 
     @Test
-    @Sql(scripts = "/insert.sql")
+    void checkForAllowedOperation(){
+        Set<HttpMethod> optionsForAllow = this.testRestTemplate.optionsForAllow("/hotels");
+        HttpMethod[] supportedMethods
+            = {/*HttpMethod.GET,*/ HttpMethod.POST/*, HttpMethod.PUT, HttpMethod.DELETE*/};
+        assertTrue(optionsForAllow.containsAll(Arrays.asList(supportedMethods)));
+
+    }
+
+    @Test
     void shouldCreateHotel(){
 
         String text = "{\n" + "  \"name\": \"Grand Hotel\",\n" + "  \"address\": \"123 Main St\",\n" +
@@ -72,6 +81,17 @@ class HotelServiceIntegrationTest {
         ResponseEntity<Void> response = this.testRestTemplate.exchange("/hotels", HttpMethod.POST, requestEntity,
                                                                        Void.class);
 
-        assertEquals(response.getStatusCodeValue(), 201);
+        assertEquals(response.getStatusCodeValue(), HttpStatus.CREATED);
+    }
+
+    @Test
+    void shouldGetHotelById(){
+
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
+
+        Long id = 1L;
+        ResponseEntity<String> response = this.testRestTemplate.getForEntity("/hotels/" + id, String.class);
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
     }
 }

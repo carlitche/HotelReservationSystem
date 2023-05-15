@@ -15,7 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -23,40 +25,58 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 public class HotelServiceTest {
 
-    @MockBean
-    private HotelRepository hotelRepository;
+  @MockBean
+  private HotelRepository hotelRepository;
 
-    @MockBean
-    private RoomTypeRepository roomTypeRepository;
+  @MockBean
+  private RoomTypeRepository roomTypeRepository;
 
-    @Autowired
-    private HotelService service;
+  @Autowired
+  private HotelService service;
 
-    @Test
-    void saveHotel_whenCreateHotelAndRooms() {
-        RoomType singleType = new RoomType("Single", "Single Room");
-        RoomType doubleType = new RoomType("Double", "Double Room");
+  @Test
+  void saveHotel_whenCreateHotelAndRooms() {
 
-        Room singleRoom = new Room(101, 1, "Single", true);
-        singleRoom.setRoomType(singleType);
+    RoomType singleType = new RoomType("Single", "Single Room");
+    RoomType doubleType = new RoomType("Double", "Double Room");
 
-        Room doubleRoom = new Room(102, 1, "Double", true);
-        doubleRoom.setRoomType(doubleType);
+    Room singleRoom = new Room(101, 1, "Single", true);
+    singleRoom.setRoomType(singleType);
 
-        Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
+    Room doubleRoom = new Room(102, 1, "Double", true);
+    doubleRoom.setRoomType(doubleType);
 
-        hotel.setRooms(List.of(singleRoom, doubleRoom));
-        Optional<RoomType> singleOpType = Optional.of(singleType);
-        Optional<RoomType> doubleOpType = Optional.of(doubleType);
+    Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
 
-        when(roomTypeRepository.findByType(any(String.class))).thenReturn(singleOpType).thenReturn(doubleOpType);
+    hotel.setRooms(List.of(singleRoom, doubleRoom));
+    Optional<RoomType> singleOpType = Optional.of(singleType);
+    Optional<RoomType> doubleOpType = Optional.of(doubleType);
 
-        when(hotelRepository.save(hotel)).thenReturn(hotel);
+    when(roomTypeRepository.findByType(any(String.class))).thenReturn(singleOpType)
+                                                          .thenReturn(doubleOpType);
 
-        Hotel result = service.saveHotel(hotel);
+    when(hotelRepository.save(hotel)).thenReturn(hotel);
 
-        assertEquals(result, hotel);
+    Hotel result = service.saveHotel(hotel);
 
-    }
+    assertEquals(result, hotel);
+
+  }
+
+  @Test
+  void getHotel_whenGetHotelById() {
+
+    Long id = 1L;
+    Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
+    hotel.setHotelId(id);
+
+    when(hotelRepository.findByHotelId(id)).thenReturn(Optional.of(hotel));
+
+    Optional<Hotel> result = service.getHotelById(id);
+
+    assertFalse(result.isEmpty());
+    assertEquals(result.get(), hotel);
+
+  }
 
 }

@@ -67,4 +67,17 @@ class HotelRepositoryTest {
 
   }
 
+  @Test
+  void getHotel_whenGetHotelById_thenReturnHotel(){
+    Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
+    Hotel newHotel = hotelRepository.save(hotel);
+
+    long id = 1L;
+    Hotel result = hotelRepository.findById(id)
+                                  .get();
+    assertEquals(result.getName(), hotel.getName());
+    assertEquals(result.getHotelId(), id);
+
+  }
+
 }

@@ -17,12 +17,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(HotelController.class)
 @Import(AppConfig.class)
@@ -69,6 +71,21 @@ class HotelControllerTest {
     assertEquals(hotelDto.getName(), capturedHotel.getName());
     assertEquals(hotelDto.getRooms().size(), capturedHotel.getRooms().size());
 
+  }
+
+  @Test
+  void getHotel_whenGetHotelID_thenReturnHotel() throws Exception {
+    Long id = 1L;
+    Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");;
+
+    when(hotelService.getHotelById(id)).thenReturn(Optional.of(hotel));
+
+
+    mvc.perform(get("/hotels/{id}", id))
+       .andDo(print())
+       .andExpect(status().isOk())
+       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+       .andExpect(jsonPath("$.name").value(hotel.getName()));
   }
 
 }
