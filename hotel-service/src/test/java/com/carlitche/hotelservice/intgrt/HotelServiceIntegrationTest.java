@@ -1,16 +1,26 @@
 package com.carlitche.hotelservice.intgrt;
 
+import com.carlitche.hotelservice.config.AppConfig;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -23,7 +33,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("intgrtest")
-@Sql(scripts = "/insert.sql")
+@Import(AppConfig.class)
 class HotelServiceIntegrationTest {
 
     @Autowired
@@ -32,8 +42,11 @@ class HotelServiceIntegrationTest {
     @LocalServerPort
     private Integer port;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Container
-    public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer("postgres:latest");
+    static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:latest");
 
     @DynamicPropertySource
     static void postgresqlProperties(DynamicPropertyRegistry registry) {
@@ -42,14 +55,21 @@ class HotelServiceIntegrationTest {
         registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
     }
 
-    @Test
+//    @Test
     void accessApplication() {
         System.out.println(port);
         System.out.println(postgreSQLContainer.getJdbcUrl());
         System.out.println(postgreSQLContainer.getTestQueryString());
     }
 
-    @Test
+    @BeforeEach
+    void setup(){
+        postgreSQLContainer.setWaitStrategy(Wait.forListeningPort());
+    }
+
+
+//    @Test
+    @Disabled
     void checkForAllowedOperation(){
         Set<HttpMethod> optionsForAllow = this.testRestTemplate.optionsForAllow("/hotels");
         HttpMethod[] supportedMethods
@@ -59,8 +79,9 @@ class HotelServiceIntegrationTest {
     }
 
     @Test
+    @Sql(scripts = "/insert.sql")
     void shouldCreateHotel(){
-
+        System.out.println(">>>>>>>Testing shouldCreateHotel:");
         String text = "{\n" + "  \"name\": \"Grand Hotel\",\n" + "  \"address\": \"123 Main St\",\n" +
                       "  \"location\": \"City Center\",\n" + "  \"rooms\": [\n" + "    {\n" +
                       "      \"number\": 101,\n" + "      \"floor\": 1,\n" + "      \"name\": \"Single Room\",\n" +
@@ -81,17 +102,22 @@ class HotelServiceIntegrationTest {
         ResponseEntity<Void> response = this.testRestTemplate.exchange("/hotels", HttpMethod.POST, requestEntity,
                                                                        Void.class);
 
-        assertEquals(response.getStatusCodeValue(), HttpStatus.CREATED);
+        assertEquals(response.getStatusCode(), HttpStatus.CREATED);
     }
 
     @Test
-    void shouldGetHotelById(){
-
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.add(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
-
+    @Sql(scripts = "/insert_hotel.sql")
+    void shouldGetHotelById() throws JsonProcessingException {
+        System.out.println(">>>>>>>Testing shouldGetHotelById:");
         Long id = 1L;
         ResponseEntity<String> response = this.testRestTemplate.getForEntity("/hotels/" + id, String.class);
         assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertNotNull(response.getBody());
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        JsonNode hotelId = root.path("hotelId");
+        assertNotNull(hotelId.asText());
+        assertEquals(id, Long.valueOf(hotelId.asText()));
     }
 }

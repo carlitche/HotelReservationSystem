@@ -7,6 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 public class HotelController {
 
@@ -30,8 +32,14 @@ public class HotelController {
   }
 
   @GetMapping("/hotels/{id}")
-  public Hotel getHotelById(@PathVariable Long id) {
-    return null;
+  public HotelDto getHotelById(@PathVariable Long id) {
+
+    Optional<Hotel> hotelById = service.getHotelById(id);
+    HotelDto result = null;
+    if(hotelById.isPresent())
+      result = modelMapper.map( hotelById, HotelDto.class);
+
+    return result;
   }
 
 }

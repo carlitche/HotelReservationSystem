@@ -77,9 +77,9 @@ class HotelControllerTest {
   void getHotel_whenGetHotelID_thenReturnHotel() throws Exception {
     Long id = 1L;
     Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");;
+    hotel.setHotelId(id);
 
     when(hotelService.getHotelById(id)).thenReturn(Optional.of(hotel));
-
 
     mvc.perform(get("/hotels/{id}", id))
        .andDo(print())

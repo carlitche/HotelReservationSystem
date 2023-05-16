@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @ActiveProfiles("test")
 @Sql(scripts = "/insert.sql")
+@Sql(scripts = "/insert_hotel.sql")
 class HotelRepositoryTest {
 
   @Autowired
@@ -72,7 +73,7 @@ class HotelRepositoryTest {
     Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
     Hotel newHotel = hotelRepository.save(hotel);
 
-    long id = 1L;
+    long id = 2L;
     Hotel result = hotelRepository.findById(id)
                                   .get();
     assertEquals(result.getName(), hotel.getName());
