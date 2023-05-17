@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(ContentNotFoundException.class)
-  public final ResponseEntity<ErrorMsgDetail> handleNotFoundException(Exception ex, WebRequest request) throws Exception {
+  public final ResponseEntity<ErrorMsgDetail> handleNotFoundException(Exception ex, WebRequest request) {
     ErrorMsgDetail msgDetail = new ErrorMsgDetail(LocalDateTime.now(),
                                                   ex.getMessage(),
                                                   request.getDescription(false));
