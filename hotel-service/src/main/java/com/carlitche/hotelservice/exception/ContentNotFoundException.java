@@ -1,4 +1,4 @@
-package com.carlitche.hotelservice.Exception;
+package com.carlitche.hotelservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

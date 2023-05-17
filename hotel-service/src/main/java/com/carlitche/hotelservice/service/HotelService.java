@@ -1,6 +1,6 @@
 package com.carlitche.hotelservice.service;
 
-import com.carlitche.hotelservice.Exception.ContentNotFoundException;
+import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.entity.Hotel;
 import com.carlitche.hotelservice.entity.Room;
 import com.carlitche.hotelservice.entity.RoomType;

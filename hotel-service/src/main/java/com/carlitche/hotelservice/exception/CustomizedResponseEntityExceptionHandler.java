@@ -1,4 +1,4 @@
-package com.carlitche.hotelservice.Exception;
+package com.carlitche.hotelservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,6 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
                                                   ex.getMessage(),
                                                   request.getDescription(false));
 
-    return new ResponseEntity<ErrorMsgDetail>(msgDetail, HttpStatus.NOT_FOUND);
+    return new ResponseEntity<>(msgDetail, HttpStatus.NOT_FOUND);
   }
 }

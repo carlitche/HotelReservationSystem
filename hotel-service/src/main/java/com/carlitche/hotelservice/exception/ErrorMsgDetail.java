@@ -1,4 +1,4 @@
-package com.carlitche.hotelservice.Exception;
+package com.carlitche.hotelservice.exception;
 
 import java.time.LocalDateTime;
 

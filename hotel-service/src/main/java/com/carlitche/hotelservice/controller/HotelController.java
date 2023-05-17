@@ -1,13 +1,12 @@
 package com.carlitche.hotelservice.controller;
 
-import com.carlitche.hotelservice.Exception.ContentNotFoundException;
+import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.entity.Hotel;
 import com.carlitche.hotelservice.model.HotelDto;
 import com.carlitche.hotelservice.service.HotelService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
