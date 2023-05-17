@@ -1,5 +1,6 @@
 package com.carlitche.hotelservice.service;
 
+import com.carlitche.hotelservice.Exception.ContentNotFoundException;
 import com.carlitche.hotelservice.entity.Hotel;
 import com.carlitche.hotelservice.entity.Room;
 import com.carlitche.hotelservice.entity.RoomType;
@@ -29,14 +30,13 @@ public class HotelService {
 
     for (Room room : hotel.getRooms()) {
       // Check if the room type already exists
-      Optional<RoomType> existingRoomType = roomTypeRepository.findByType(room.getRoomType()
-                                                                              .getType());
+      Optional<RoomType> existingRoomType = roomTypeRepository.findByType(room.getRoomType().getType());
 
       // If the room type exists, use the existing one
       if (existingRoomType.isPresent()) {
         room.setRoomType(existingRoomType.get());
       } else {
-        throw new RuntimeException("Unknown RoomType");
+        throw new ContentNotFoundException("No Room Type found with the type: " + room.getRoomType().getType());
       }
     }
 

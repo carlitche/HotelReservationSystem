@@ -67,17 +67,6 @@ class HotelServiceIntegrationTest {
         postgreSQLContainer.setWaitStrategy(Wait.forListeningPort());
     }
 
-
-//    @Test
-    @Disabled
-    void checkForAllowedOperation(){
-        Set<HttpMethod> optionsForAllow = this.testRestTemplate.optionsForAllow("/hotels");
-        HttpMethod[] supportedMethods
-            = {/*HttpMethod.GET,*/ HttpMethod.POST/*, HttpMethod.PUT, HttpMethod.DELETE*/};
-        assertTrue(optionsForAllow.containsAll(Arrays.asList(supportedMethods)));
-
-    }
-
     @Test
     @Sql(scripts = "/insert.sql")
     void shouldCreateHotel(){
@@ -102,7 +91,7 @@ class HotelServiceIntegrationTest {
         ResponseEntity<Void> response = this.testRestTemplate.exchange("/hotels", HttpMethod.POST, requestEntity,
                                                                        Void.class);
 
-        assertEquals(response.getStatusCode(), HttpStatus.CREATED);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
@@ -111,7 +100,7 @@ class HotelServiceIntegrationTest {
         System.out.println(">>>>>>>Testing shouldGetHotelById:");
         Long id = 1L;
         ResponseEntity<String> response = this.testRestTemplate.getForEntity("/hotels/" + id, String.class);
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
 
         ObjectMapper mapper = new ObjectMapper();

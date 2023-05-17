@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = HotelService.class)
 @ActiveProfiles("test")
-public class HotelServiceTest {
+class HotelServiceTest {
 
   @MockBean
   private HotelRepository hotelRepository;
