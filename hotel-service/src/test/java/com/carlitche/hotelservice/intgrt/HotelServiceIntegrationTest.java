@@ -5,8 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +22,8 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.Arrays;
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Testcontainers
@@ -70,7 +66,7 @@ class HotelServiceIntegrationTest {
     @Test
     @Sql(scripts = "/insert.sql")
     void shouldCreateHotel(){
-        System.out.println(">>>>>>>Testing shouldCreateHotel:");
+
         String text = "{\n" + "  \"name\": \"Grand Hotel\",\n" + "  \"address\": \"123 Main St\",\n" +
                       "  \"location\": \"City Center\",\n" + "  \"rooms\": [\n" + "    {\n" +
                       "      \"number\": 101,\n" + "      \"floor\": 1,\n" + "      \"name\": \"Single Room\",\n" +
@@ -97,7 +93,7 @@ class HotelServiceIntegrationTest {
     @Test
     @Sql(scripts = "/insert_hotel.sql")
     void shouldGetHotelById() throws JsonProcessingException {
-        System.out.println(">>>>>>>Testing shouldGetHotelById:");
+
         Long id = 1L;
         ResponseEntity<String> response = this.testRestTemplate.getForEntity("/hotels/" + id, String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -108,5 +104,58 @@ class HotelServiceIntegrationTest {
         JsonNode hotelId = root.path("hotelId");
         assertNotNull(hotelId.asText());
         assertEquals(id, Long.valueOf(hotelId.asText()));
+    }
+
+
+    @Test
+    void errorMsg4XXWhenGetHotelIdNotExist() throws JsonProcessingException {
+
+        long id = 999L;
+        ResponseEntity<String> response = this.testRestTemplate.getForEntity("/hotels/" + id, String.class);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        JsonNode errorMsg = root.path("message");
+        assertNotNull(errorMsg.asText());
+        assertEquals("No Hotel found with the id: " + id, errorMsg.asText());
+    }
+
+    @Test
+    void errorMsg4XXWhenRoomTypeNotExist() throws JsonProcessingException {
+
+        String text = "{\n" +
+                      "  \"name\": \"Grand Hotel\",\n" +
+                      "  \"address\": \"123 Main St\",\n" +
+                      "  \"location\": \"City Center\",\n" +
+                      "  \"rooms\": [\n" +
+                      "    {\n" +
+                      "      \"number\": 101,\n" +
+                      "      \"floor\": 1,\n" +
+                      "      \"name\": \"Single Room\",\n" +
+                      "      \"available\": true,\n" +
+                      "      \"roomType\": {\n" +
+                      "        \"type\": \"Single\"\n" +
+                      "      }\n" +
+                      "    }\n" +
+                      "  ]\n" +
+                      "}";
+
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(text, requestHeaders);
+
+        ResponseEntity<String> response = this.testRestTemplate.exchange("/hotels", HttpMethod.POST, requestEntity,
+                String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        JsonNode errorMsg = root.path("message");
+        assertNotNull(errorMsg.asText());
+        assertEquals("No Room Type found with the type: Single", errorMsg.asText());
     }
 }
