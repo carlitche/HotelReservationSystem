@@ -88,4 +88,14 @@ class HotelControllerTest {
        .andExpect(jsonPath("$.name").value(hotel.getName()));
   }
 
+  @Test
+  void notFound_whenGetHotelById_thenReturnNotFoundError() throws Exception {
+    Long id = 999L;
+    mvc.perform(get("/hotels/{id}", id).accept(MediaType.APPLICATION_JSON))
+       .andDo(print())
+       .andExpect(status().isNotFound())
+       .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+       .andExpect(jsonPath("$.message").value("No Hotel found with the id: " + id));
+  }
+
 }
