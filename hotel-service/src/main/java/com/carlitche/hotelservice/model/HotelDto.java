@@ -18,11 +18,11 @@ public class HotelDto {
     public HotelDto() {
     }
 
-    public HotelDto(String name, String address, String location, List<RoomDto> rooms) {
+    public HotelDto(String name, String address, String location) {
         this.name = name;
         this.address = address;
         this.location = location;
-        this.rooms = rooms;
+//        this.rooms = rooms;
     }
 
     public Long getHotelId() {

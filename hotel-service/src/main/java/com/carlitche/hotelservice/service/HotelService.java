@@ -9,6 +9,7 @@ import com.carlitche.hotelservice.repository.RoomTypeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,5 +45,10 @@ public class HotelService {
 
     return hotelRepository.findByHotelId(id);
   }
+
+  public Iterable<Hotel> getAllHotels(){
+    return hotelRepository.findAll();
+  }
+
 
 }

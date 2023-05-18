@@ -8,7 +8,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @RestController
 public class HotelController {
@@ -44,6 +48,12 @@ public class HotelController {
     return result;
   }
 
-
+  @GetMapping("/hotels")
+  public List<HotelDto> getAllHotels(){
+    Iterable<Hotel> hotels = service.getAllHotels();
+    return StreamSupport.stream(hotels.spliterator(), false)
+            .map(data -> modelMapper.map(data, HotelDto.class))
+            .toList();
+  }
 
 }

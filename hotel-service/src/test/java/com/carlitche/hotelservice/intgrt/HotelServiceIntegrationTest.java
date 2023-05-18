@@ -22,8 +22,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Testcontainers
@@ -157,5 +156,18 @@ class HotelServiceIntegrationTest {
         JsonNode errorMsg = root.path("message");
         assertNotNull(errorMsg.asText());
         assertEquals("No Room Type found with the type: Single", errorMsg.asText());
+    }
+
+    @Test
+    @Sql(scripts = "/insert_hotel.sql")
+    void shouldGetAllHotel() throws JsonProcessingException {
+
+        ResponseEntity<String> response = this.testRestTemplate.getForEntity("/hotels", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.getBody());
+        assertTrue(root.isArray());
     }
 }

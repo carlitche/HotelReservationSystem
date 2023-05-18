@@ -16,12 +16,11 @@ public class RoomDto {
     public RoomDto() {
     }
 
-    public RoomDto(Integer number, Integer floor, String name, Boolean available, RoomTypeDto roomType) {
+    public RoomDto(Integer number, Integer floor, String name, Boolean available) {
         this.number = number;
         this.floor = floor;
         this.name = name;
         this.available = available;
-        this.roomType = roomType;
     }
 
     public Long getRoomId() {
