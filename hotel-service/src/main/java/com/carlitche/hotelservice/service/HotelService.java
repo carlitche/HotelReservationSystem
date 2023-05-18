@@ -25,19 +25,16 @@ public class HotelService {
     this.roomTypeRepository = roomTypeRepository;
   }
 
-
   public Hotel saveHotel(Hotel hotel) {
 
     for (Room room : hotel.getRooms()) {
       // Check if the room type already exists
-      Optional<RoomType> existingRoomType = roomTypeRepository.findByType(room.getRoomType().getType());
+      RoomType roomType = roomTypeRepository.findByType(room.getRoomType()
+                                                            .getType())
+                                            .orElseThrow(() -> new ContentNotFoundException(
+                                                "No Room Type found with the type: " + room.getRoomType().getType()));
+      room.setRoomType(roomType);
 
-      // If the room type exists, use the existing one
-      if (existingRoomType.isPresent()) {
-        room.setRoomType(existingRoomType.get());
-      } else {
-        throw new ContentNotFoundException("No Room Type found with the type: " + room.getRoomType().getType());
-      }
     }
 
     return hotelRepository.save(hotel);
