@@ -16,8 +16,10 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -30,9 +32,6 @@ class HotelRepositoryTest {
   private HotelRepository hotelRepository;
 
   @Autowired
-  private RoomRepository roomRepository;
-
-  @Autowired
   private RoomTypeRepository roomTypeRepository;
 
 
@@ -40,7 +39,7 @@ class HotelRepositoryTest {
   void saveHotel_whenNewHotel_thenReturnHotel() {
 
     Optional<RoomType> singleType = roomTypeRepository.findByType("Single");
-    Optional<RoomType> doubleType = roomTypeRepository.findByType("Single");
+    Optional<RoomType> doubleType = roomTypeRepository.findByType("Double");
 
     assertAll(() -> assertFalse(singleType.isEmpty()), () -> assertFalse(doubleType.isEmpty()));
 
@@ -69,15 +68,40 @@ class HotelRepositoryTest {
   }
 
   @Test
-  void getHotel_whenGetHotelById_thenReturnHotel(){
+  void getHotel_whenFindByHotelId_thenReturnHotel(){
     Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
     Hotel newHotel = hotelRepository.save(hotel);
 
-    long id = 2L;
-    Hotel result = hotelRepository.findById(id)
-                                  .get();
-    assertEquals(result.getName(), hotel.getName());
-    assertEquals(result.getHotelId(), id);
+    long id = newHotel.getHotelId();
+    Optional<Hotel> result = hotelRepository.findById(id);
+    assertFalse(result.isEmpty());
+    assertEquals(result.get().getName(), hotel.getName());
+    assertEquals(result.get().getHotelId(), id);
+
+  }
+
+  @Test
+  void getAllHotel_whenfindAll_thenReturnListHotels(){
+    Optional<RoomType> singleType = roomTypeRepository.findByType("Single");
+    Optional<RoomType> doubleType = roomTypeRepository.findByType("Double");
+
+    assertAll(() -> assertFalse(singleType.isEmpty()), () -> assertFalse(doubleType.isEmpty()));
+
+    Hotel hotel1 = new Hotel("Grand Hotel", "123 Main St", "City Center");
+    Room singleRoom = new Room(201, 2, "single", true);
+    singleRoom.setRoomType(singleType.get());
+    hotel1.setRooms(List.of(singleRoom));
+    Hotel newHotel1 = hotelRepository.save(hotel1);
+
+    Hotel hotel2 = new Hotel("Hotel Two", "Coimbra", "Portugal");
+    Room doubleRoom = new Room(301, 3, "double", true);
+    doubleRoom.setRoomType(doubleType.get());
+    hotel1.setRooms(List.of(doubleRoom));
+    Hotel newHotel2 = hotelRepository.save(hotel2);
+
+    Iterable<Hotel> hotels = hotelRepository.findAll();
+
+    assertEquals(3, StreamSupport.stream(hotels.spliterator(), false).count());
 
   }
 

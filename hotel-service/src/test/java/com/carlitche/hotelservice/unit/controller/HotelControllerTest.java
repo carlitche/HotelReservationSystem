@@ -17,8 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -89,13 +91,31 @@ class HotelControllerTest {
   }
 
   @Test
-  void notFound_whenGetHotelById_thenReturnNotFoundError() throws Exception {
+  void notFound4xx_whenGetHotelById_thenReturnNotFoundError() throws Exception {
     Long id = 999L;
     mvc.perform(get("/hotels/{id}", id).accept(MediaType.APPLICATION_JSON))
        .andDo(print())
        .andExpect(status().isNotFound())
        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
        .andExpect(jsonPath("$.message").value("No Hotel found with the id: " + id));
+  }
+
+  @Test
+  void getAllHotel_whenGetHotels_thenReturnListHotels() throws Exception {
+
+    Hotel hotel1 = new Hotel("Grand Hotel", "123 Main St", "City Center");;
+    hotel1.setHotelId(1L);
+
+    Hotel hotel2 = new Hotel("Hotel One", "Lisbon", "Portugal");;
+    hotel2.setHotelId(2L);
+
+    when(hotelService.getAllHotels()).thenReturn(List.of(hotel1, hotel2));
+
+    mvc.perform(get("/hotels").accept(MediaType.APPLICATION_JSON)).andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.*").isArray())
+            .andExpect(jsonPath("$", hasSize(2)));
   }
 
 }

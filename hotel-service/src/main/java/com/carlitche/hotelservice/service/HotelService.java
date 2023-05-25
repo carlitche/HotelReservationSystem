@@ -1,9 +1,9 @@
 package com.carlitche.hotelservice.service;
 
-import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.entity.Hotel;
 import com.carlitche.hotelservice.entity.Room;
 import com.carlitche.hotelservice.entity.RoomType;
+import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.repository.HotelRepository;
 import com.carlitche.hotelservice.repository.RoomTypeRepository;
 import org.springframework.stereotype.Service;
@@ -43,6 +43,10 @@ public class HotelService {
   public Optional<Hotel> getHotelById(Long id) {
 
     return hotelRepository.findByHotelId(id);
+  }
+
+  public Iterable<Hotel> getAllHotels(){
+    return hotelRepository.findAll();
   }
 
 }

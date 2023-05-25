@@ -15,6 +15,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,6 +100,21 @@ class HotelServiceTest {
 
     Exception exec = assertThrows(ContentNotFoundException.class, () -> service.saveHotel(hotel));
     assertEquals("No Room Type found with the type: " + standardType.getType(), exec.getMessage());
+  }
+
+  @Test
+  void getAllHotels_thenReturnListHotels() {
+    int n = 3;
+    List<Hotel> hotels = IntStream.range(0, n)
+            .mapToObj(i -> new Hotel()) // create n Hotel objects
+            .collect(Collectors.toList());
+
+    when(hotelRepository.findAll()).thenReturn(hotels);
+
+    Iterable<Hotel> result = service.getAllHotels();
+
+    assertEquals(n, StreamSupport.stream(hotels.spliterator(), false).count());
+
   }
 
 }

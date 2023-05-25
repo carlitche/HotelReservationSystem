@@ -3,7 +3,9 @@ package com.carlitche.hotelservice.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Room")
+@Table(name = "Room",
+       indexes = {@Index(name = "idx_room_room_id_hotel_id",
+                         columnList = "room_id, hotel_id")})
 public class Room {
 
     @Id
