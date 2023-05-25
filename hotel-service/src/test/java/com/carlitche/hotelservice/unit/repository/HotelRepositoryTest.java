@@ -32,9 +32,6 @@ class HotelRepositoryTest {
   private HotelRepository hotelRepository;
 
   @Autowired
-  private RoomRepository roomRepository;
-
-  @Autowired
   private RoomTypeRepository roomTypeRepository;
 
 
@@ -71,7 +68,7 @@ class HotelRepositoryTest {
   }
 
   @Test
-  void getHotel_whenGetHotelById_thenReturnHotel(){
+  void getHotel_whenFindByHotelId_thenReturnHotel(){
     Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");
     Hotel newHotel = hotelRepository.save(hotel);
 

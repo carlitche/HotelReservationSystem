@@ -1,15 +1,14 @@
 package com.carlitche.hotelservice.service;
 
-import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.entity.Hotel;
 import com.carlitche.hotelservice.entity.Room;
 import com.carlitche.hotelservice.entity.RoomType;
+import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.repository.HotelRepository;
 import com.carlitche.hotelservice.repository.RoomTypeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,6 +48,5 @@ public class HotelService {
   public Iterable<Hotel> getAllHotels(){
     return hotelRepository.findAll();
   }
-
 
 }

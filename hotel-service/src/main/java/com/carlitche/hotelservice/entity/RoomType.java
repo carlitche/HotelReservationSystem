@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "room_type", indexes = {
-        @Index(name = "idx_roomtype_type_unq", columnList = "type", unique = true)
-})
+@Table(name = "room_type",
+       indexes = {@Index(name = "idx_roomtype_type_unq",
+                         columnList = "type",
+                         unique = true)},
+       uniqueConstraints = {@UniqueConstraint(name = "uc_roomtype_type",
+                                              columnNames = {"type"})})
 public class RoomType {
 
     @Id

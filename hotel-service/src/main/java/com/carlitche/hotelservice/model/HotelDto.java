@@ -22,7 +22,6 @@ public class HotelDto {
         this.name = name;
         this.address = address;
         this.location = location;
-//        this.rooms = rooms;
     }
 
     public Long getHotelId() {
