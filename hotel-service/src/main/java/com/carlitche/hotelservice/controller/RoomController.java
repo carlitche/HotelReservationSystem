@@ -1,7 +1,6 @@
 package com.carlitche.hotelservice.controller;
 
 import com.carlitche.hotelservice.entity.Room;
-import com.carlitche.hotelservice.exception.ContentNotFoundException;
 import com.carlitche.hotelservice.model.RoomDto;
 import com.carlitche.hotelservice.service.RoomService;
 import org.modelmapper.ModelMapper;
@@ -26,9 +25,7 @@ public class RoomController {
 
     @GetMapping("/hotels/{hotelId}/rooms/{roomId}")
     public RoomDto getHotelRoomById(@PathVariable Long hotelId, @PathVariable Long roomId){
-
-        Room room = service.getHotelRoomById(hotelId, roomId)
-                           .orElseThrow(() -> new ContentNotFoundException("No Room with id: " + roomId + " for Hotel id: " + hotelId));
+        Room room = service.getHotelRoomById(hotelId, roomId);
 
         return modelMapper.map(room, RoomDto.class);
     }
@@ -36,8 +33,6 @@ public class RoomController {
     @GetMapping("/hotels/{hotelId}/rooms")
     public List<RoomDto> getAllHotelRooms(@PathVariable Long hotelId){
         List<Room> roomList = service.getAllHotelRooms(hotelId);
-
-
 
         return StreamSupport.stream(roomList.spliterator(), false)
                      .map(data -> modelMapper.map(data, RoomDto.class))

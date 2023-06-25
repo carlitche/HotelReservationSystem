@@ -3,7 +3,7 @@ package com.carlitche.hotelservice.unit.service;
 import com.carlitche.hotelservice.entity.Hotel;
 import com.carlitche.hotelservice.entity.Room;
 import com.carlitche.hotelservice.entity.RoomType;
-import com.carlitche.hotelservice.exception.ContentNotFoundException;
+import com.carlitche.hotelservice.exception.NoSuchElementFoundException;
 import com.carlitche.hotelservice.repository.HotelRepository;
 import com.carlitche.hotelservice.repository.RoomTypeRepository;
 import com.carlitche.hotelservice.service.HotelService;
@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -75,15 +74,14 @@ class HotelServiceTest {
 
     when(hotelRepository.findByHotelId(id)).thenReturn(Optional.of(hotel));
 
-    Optional<Hotel> result = service.getHotelById(id);
+    Hotel result = service.getHotelById(id);
 
-    assertFalse(result.isEmpty());
-    assertEquals(result.get(), hotel);
+    assertEquals(result, hotel);
 
   }
 
   @Test
-  void getContentNotFoundException_whenNoRoomTypeFound(){
+  void getNoSuchElementFoundException_whenNoRoomTypeFound(){
 
     RoomType standardType = new RoomType("Standard", "Single Room");
 
@@ -98,8 +96,8 @@ class HotelServiceTest {
 
     when(hotelRepository.save(hotel)).thenReturn(hotel);
 
-    Exception exec = assertThrows(ContentNotFoundException.class, () -> service.saveHotel(hotel));
-    assertEquals("No Room Type found with the type: " + standardType.getType(), exec.getMessage());
+    Exception exec = assertThrows(NoSuchElementFoundException.class, () -> service.saveHotel(hotel));
+    assertEquals("RoomType was not found for parameters {type=" + standardType.getType() + "}", exec.getMessage());
   }
 
   @Test

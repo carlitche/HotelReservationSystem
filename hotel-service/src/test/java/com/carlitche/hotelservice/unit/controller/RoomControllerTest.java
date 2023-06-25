@@ -4,6 +4,7 @@ import com.carlitche.hotelservice.config.AppConfig;
 import com.carlitche.hotelservice.controller.RoomController;
 import com.carlitche.hotelservice.entity.Room;
 import com.carlitche.hotelservice.entity.RoomType;
+import com.carlitche.hotelservice.exception.NoSuchElementFoundException;
 import com.carlitche.hotelservice.service.RoomService;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -47,7 +48,7 @@ class RoomControllerTest {
 
         long roomId = 1;
         long hotelId = 1;
-        when(roomService.getHotelRoomById(hotelId, roomId)).thenReturn(Optional.of(singleRoom));
+        when(roomService.getHotelRoomById(hotelId, roomId)).thenReturn(singleRoom);
 
         mvc.perform(get("/hotels/{idHotel}/rooms/{id}", hotelId, roomId))
            .andDo(print())
@@ -59,14 +60,19 @@ class RoomControllerTest {
     @Test
     void notFound4xx_whenGetHotelRoomId_thenReturnNotFoundError() throws Exception {
 
-        long roomId = 1;
-        long hotelId = 1;
+        Long roomId = 1L;
+        Long hotelId = 1L;
+
+        when(roomService.getHotelRoomById(hotelId, roomId)).thenThrow(new NoSuchElementFoundException(Room.class,
+                                                                                                      "roomId", roomId.toString(),
+                                                                                                      "hotelId", hotelId.toString()));
 
         mvc.perform(get("/hotels/{idHotel}/rooms/{id}", hotelId, roomId))
            .andDo(print())
            .andExpect(status().isNotFound())
            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-           .andExpect(jsonPath("$.message").value("No Room with id: " + roomId + " for Hotel id: " + hotelId));
+           .andExpect(jsonPath("$.message").value(
+               "Room was not found for parameters {hotelId=" + hotelId + ", roomId=" + roomId + "}"));
 
     }
 

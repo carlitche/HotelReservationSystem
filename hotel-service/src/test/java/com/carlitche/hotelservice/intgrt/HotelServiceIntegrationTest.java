@@ -140,7 +140,7 @@ class HotelServiceIntegrationTest {
         JsonNode root = mapper.readTree(response.getBody());
         JsonNode errorMsg = root.path("message");
         assertNotNull(errorMsg.asText());
-        assertEquals("No Hotel found with the id: " + id, errorMsg.asText());
+        assertEquals("Hotel was not found for parameters {id=" + 999L + "}", errorMsg.asText());
     }
 
     @Test
@@ -177,7 +177,7 @@ class HotelServiceIntegrationTest {
         JsonNode root = mapper.readTree(response.getBody());
         JsonNode errorMsg = root.path("message");
         assertNotNull(errorMsg.asText());
-        assertEquals("No Room Type found with the type: Single", errorMsg.asText());
+        assertEquals("RoomType was not found for parameters {type=Single}", errorMsg.asText());
     }
 
     @Test
@@ -223,7 +223,7 @@ class HotelServiceIntegrationTest {
         JsonNode root = mapper.readTree(response.getBody());
         JsonNode errorMsg = root.path("message");
         assertNotNull(errorMsg.asText());
-        assertEquals("No Room with id: " + roomId + " for Hotel id: " + hotelId, errorMsg.asText());
+        assertEquals("Room was not found for parameters {hotelId=" + hotelId + ", roomId=" + roomId + "}", errorMsg.asText());
     }
 
     @Test
