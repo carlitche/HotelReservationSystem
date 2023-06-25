@@ -4,20 +4,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import java.time.LocalDateTime;
 
 @ControllerAdvice
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(ContentNotFoundException.class)
-  public final ResponseEntity<ErrorMsgDetail> handleNotFoundException(Exception ex, WebRequest request) {
-    ErrorMsgDetail msgDetail = new ErrorMsgDetail(LocalDateTime.now(),
-                                                  ex.getMessage(),
-                                                  request.getDescription(false));
+  @ExceptionHandler(NoSuchElementFoundException.class)
+  public final ResponseEntity<Object> handleNotFoundException(NoSuchElementFoundException ex) {
+    ErrorMsg errorMsg = new ErrorMsg(HttpStatus.NOT_FOUND);
+    errorMsg.setMessage(ex.getMessage());
+    return buildResponseEntity(errorMsg);
+  }
 
-    return new ResponseEntity<>(msgDetail, HttpStatus.NOT_FOUND);
+  private ResponseEntity<Object> buildResponseEntity(ErrorMsg error) {
+    return new ResponseEntity<>(error, error.getStatus());
   }
 }

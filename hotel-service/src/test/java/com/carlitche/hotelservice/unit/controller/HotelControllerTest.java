@@ -3,6 +3,8 @@ package com.carlitche.hotelservice.unit.controller;
 import com.carlitche.hotelservice.config.AppConfig;
 import com.carlitche.hotelservice.controller.HotelController;
 import com.carlitche.hotelservice.entity.Hotel;
+import com.carlitche.hotelservice.entity.RoomType;
+import com.carlitche.hotelservice.exception.NoSuchElementFoundException;
 import com.carlitche.hotelservice.model.HotelDto;
 import com.carlitche.hotelservice.service.HotelService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -81,7 +83,7 @@ class HotelControllerTest {
     Hotel hotel = new Hotel("Grand Hotel", "123 Main St", "City Center");;
     hotel.setHotelId(id);
 
-    when(hotelService.getHotelById(id)).thenReturn(Optional.of(hotel));
+    when(hotelService.getHotelById(id)).thenReturn(hotel);
 
     mvc.perform(get("/hotels/{id}", id))
        .andDo(print())
@@ -93,11 +95,13 @@ class HotelControllerTest {
   @Test
   void notFound4xx_whenGetHotelById_thenReturnNotFoundError() throws Exception {
     Long id = 999L;
+    when(hotelService.getHotelById(id)).thenThrow(new NoSuchElementFoundException(Hotel.class, "id",
+                                                                                        id.toString()));
     mvc.perform(get("/hotels/{id}", id).accept(MediaType.APPLICATION_JSON))
        .andDo(print())
        .andExpect(status().isNotFound())
        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-       .andExpect(jsonPath("$.message").value("No Hotel found with the id: " + id));
+       .andExpect(jsonPath("$.message").value("Hotel was not found for parameters {id=" + id +"}"));
   }
 
   @Test

@@ -1,6 +1,7 @@
 package com.carlitche.hotelservice.unit.service;
 
 import com.carlitche.hotelservice.entity.Room;
+import com.carlitche.hotelservice.exception.NoSuchElementFoundException;
 import com.carlitche.hotelservice.repository.RoomRepository;
 import com.carlitche.hotelservice.service.RoomService;
 import org.junit.jupiter.api.Test;
@@ -33,10 +34,21 @@ class RoomServiceTest {
         Long roomId = 1L;
         when(roomRepository.findByHotel_HotelIdAndRoomId(hotelId, roomId)).thenReturn(Optional.of(room));
 
-        Optional<Room> result = service.getHotelRoomById(hotelId, roomId);
+        Room result = service.getHotelRoomById(hotelId, roomId);
 
-        assertFalse(result.isEmpty());
-        assertEquals(result.get(), room);
+        assertEquals(result, room);
+
+    }
+
+    @Test
+    void getNoSuchElementFoundException_whenNoRoomFound(){
+
+        Long hotelId = 999L;
+        Long roomId = 1L;
+        when(roomRepository.findByHotel_HotelIdAndRoomId(hotelId, roomId)).thenReturn(Optional.empty());
+
+        Exception exec = assertThrows(NoSuchElementFoundException.class, () -> service.getHotelRoomById(hotelId, roomId));
+        assertEquals("Room was not found for parameters {hotelId=" + hotelId + ", roomId=" + roomId + "}", exec.getMessage());
 
     }
 
